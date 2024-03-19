@@ -1,14 +1,14 @@
 import express from 'express';
 import {config} from 'dotenv';
 import cors from 'cors';
-import productsRouter from './routes/products.js';
-import usersRouter from './routes/users.js'
-import loginRouter from './routes/login.js'
-import socialsRouter from './routes/socials.js';
-import logInUser from './middlewear/auth.js'
+import productsRouter from './backend/routes/products.js';
+import usersRouter from './backend/routes/users.js'
+import loginRouter from './backend/routes/login.js'
+import socialsRouter from './backend/routes/socials.js';
+import logInUser from './backend/middlewear/auth.js'
 import cookieParser from 'cookie-parser';
-import {addToCart,getUserCartWithProductInfo,updateCartItemQuantity,removeFromCart,getCartWithProductInfo} from './models/cart.js'
-import loginUser from './middlewear/auth.js';
+import {addToCart,getUserCartWithProductInfo,updateCartItemQuantity,removeFromCart,getCartWithProductInfo} from './backend/models/cart.js'
+import loginUser from './backend/middlewear/auth.js';
 config();
 
 const PORT = process.env.PORT;
