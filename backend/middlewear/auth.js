@@ -2,28 +2,42 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { check,getUserByEmail } from '../models/users.js';
 
+
+
 const loginUser = async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
-        // Fetch hashed password and user ID from the database
-        const { id, hashedPassword } = await check(email);
+        // Fetch user information
+        const user = await getUserByEmail(email);
+
+        if (!user) {
+            return res.status(401).json({
+                msg: 'Invalid email or password'
+            });
+        }
+
+        // Fetch hashed password from the database
+        const { hashedPassword } = await check(email);
 
         // Compare passwords using bcrypt.compare
         const passwordMatch = await bcrypt.compare(password, hashedPassword);
 
-        let user = await getUserByEmail(email)
-
         if (passwordMatch) {
-            // Generate JWT token with user ID
-            const token = jwt.sign({ id: id }, process.env.SECRET_KEY, { expiresIn: '1d' });
-
-            // Set token as a cookie (httpOnly: true for security)
+            // Generate JWT token with user ID included in the payload
+            const payload = {
+                userId: user,
+                email: user.email,
+                role: user.role,
+                // Include other user information as needed
+            };
+            const token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: '1d' });
+            console.log('Generated Token:', token); // Log the generated token
             res.cookie('jwt', token, { httpOnly: true });
             
             // Send success response
             return res.json({
-                user:user,
+                user: user,
                 token: token,
                 msg: 'You have logged in successfully'
             });
@@ -42,28 +56,5 @@ const loginUser = async (req, res, next) => {
     }
 };
 
-const getuserid = (req) => {
-    // Extract JWT token from the cookie
-    const token = req.cookies.jwt;
-
-    if (token) {
-        try {
-            // Verify and decode the JWT token
-            const decodedToken = jwt.verify(token, process.env.SECRET_KEY);
-            
-            // Extract user ID from the decoded token
-            const userId = decodedToken.id;
-
-            return userId;
-        } catch (error) {
-            // Handle invalid or expired tokens
-            console.error('Error decoding JWT token:', error);
-            return null;
-        }
-    } else {
-        // If token doesn't exist or not provided
-        return null;
-    }
-};
 
 export default loginUser;
