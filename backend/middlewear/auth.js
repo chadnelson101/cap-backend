@@ -55,6 +55,33 @@ const loginUser = async (req, res, next) => {
         });
     }
 };
+export const verifyToken = (token) => {
+    try {
+        // Check if the token is a string
+        if (typeof token !== 'string') {
+            throw new Error('Token must be a string');
+        }
 
+        // Verify the JWT token
+        const decodedToken = jwt.verify(token, process.env.SECRET_KEY);
+        
+        // Log the decoded token to inspect its structure
+        console.log('Decoded Token:', decodedToken);
+
+        // Extract user ID from the decoded token
+        const userId = decodedToken.userId[0].userid; // Access userId property within the array
+
+        // Debug logging to verify the retrieved user ID
+        console.log('Extracted User ID:', userId);
+
+        // Return the userId
+        return userId;
+    } catch (error) {
+        // Handle invalid or expired tokens
+        console.error('Error verifying JWT token:', error);
+        // Throw the error to be handled by the caller
+        throw error;
+    }
+};
 
 export default loginUser;

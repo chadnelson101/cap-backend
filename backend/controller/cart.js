@@ -1,6 +1,6 @@
 import {addToCart,getUserCartWithProductInfo,updateCartItemQuantity,removeFromCart,getCartWithProductInfo,} from '../models/cart.js'
-
-import { getUserId}  from '../middlewear/authUser.js';
+import { getProducts } from '../models/products.js';
+import { verifyToken } from '../middlewear/auth.js';
 
 export default {
     geCart:async(req, res)=>{
@@ -21,24 +21,35 @@ export default {
             res.status(500).send('Error fetching user cart');
         }
     },
-    addToCart: async (req, res) => {
+     addToCart: async (req, res) => {
         try {
-            const product_id = req.params.product_id;
-            const user_id = getUserId(req); // Get user ID from the request (implement this function)
+            // Extract token from request headers or cookies
+            const token = req.headers.authorization || req.cookies.jwt;
+            
+            // Verify the token and extract user ID
+            const userId = verifyToken(token);
     
-            if (!user_id) {
-                throw new Error('User not authenticated');
+            // Extract product ID from request parameters
+            const { product_id } = req.params;
+    
+            // Fetch product details from the database
+            const product = await getProducts(product_id);
+    
+            if (!product) {
+                return res.status(404).json({ message: 'Product not found' });
             }
     
-            await addToCart(user_id, product_id); // Pass both user_id and product_id
+            // Add product to the user's cart
+            const result = await addToCart(userId, product_id);
     
-            res.status(201).json({ msg: 'Product added to cart successfully.' });
+            // Send success response
+            return res.status(201).json({ message: 'Product added to cart successfully', result });
         } catch (error) {
+            // Handle any errors
             console.error('Error adding product to cart:', error);
-            res.status(500).json({ msg: 'Internal server error' });
+            return res.status(500).json({ message: 'Internal server error' });
         }
     },
-    
     deleteCart: async (req, res) => {
         const cartId = req.params.cartId;
         try {
