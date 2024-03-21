@@ -14,7 +14,7 @@
         .get(controller.getUserCart)
 
     router
-        .route('/:user_id, product_id')
+        .route('/:product_id')
         .post(controller.addToCart)
 
     router

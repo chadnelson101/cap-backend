@@ -1,5 +1,6 @@
 import {pool} from '../config/config.js'
 
+
 const getCartWithProductInfo = async () => {
     try {
         // Query the database to retrieve cart items with product information
@@ -16,36 +17,23 @@ const getCartWithProductInfo = async () => {
     }
 };
 
-    const addToCart = async (user_id, product_id) => {
-        const insertQuery = `
-            INSERT INTO cart (user_id, product_id)
-            VALUES (?, ?)
-        `;
-        const selectQuery = `
-            SELECT p.* FROM products p WHERE p.prodid = ?
-        `;
+ const addToCart = async (user_id, product_id) => {
+    const insertQuery = `
+        INSERT INTO cart (user_id, product_id)
+        VALUES (?, ?)
+    `;
 
-        try {
-            // Insert into cart
-            await pool.query(insertQuery, [user_id, product_id]);
-
-            // Retrieve product information
-            const [productRows] = await pool.query(selectQuery, [product_id]);
-
-            if (productRows.length > 0) {
-                const productInfo = productRows[0];
-                return productInfo; // Return the product information
-            } else {
-                throw new Error('Product not found');
-            }
-        } catch (error) {
-            console.error('Error adding to cart:', error);
-            throw error; // Propagate the error
-        }
-    };
-
-
-
+    try {
+        // Insert into cart
+        await pool.query(insertQuery, [user_id, product_id]);
+        
+        // If successful, you can return any additional information or simply return success
+        return { success: true, message: 'Product added to cart successfully.' };
+    } catch (error) {
+        console.error('Error adding to cart:', error);
+        throw error; // Propagate the error
+    }
+};
 // Get user's cart
 const getUserCartWithProductInfo = async (userId) => {
     try {

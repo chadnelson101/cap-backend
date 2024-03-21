@@ -31,24 +31,35 @@ const deleteUser = async (userid) => {
     return getUsers();
 };
 
-const checkuser = async (email)=>{
-    const [[{password}]] = await pool.query(`SELECT * FROM users WHERE email =?`,[email])
-    return password
-}
-
+// const checkuser = async (email)=>{
+//     const [[{password}]] = await pool.query(`SELECT * FROM users WHERE email =?`,[email])
+//     return password
+// }
 const check = async (email) => {
-    const [validate] = await pool.query(`SELECT userid, password FROM users WHERE email = ?`, [email]);
-    if (validate.length > 0) {
-        const { id, password } = validate[0];
-        return { id, hashedPassword: password };
-    } else {
-        throw new Error('User not found');
+    try {
+        const [validate] = await pool.query(`SELECT userid, password FROM users WHERE email = ?`, [email]);
+        if (validate.length > 0) {
+            const { userid, password } = validate[0]; // Extract userId from the query result
+            return { userId: userid, hashedPassword: password }; // Return userId along with hashedPassword
+        } else {
+            return null; // Return null if user is not found
+        }
+    } catch (error) {
+        console.error('Error checking user:', error);
+        throw new Error('Internal server error');
     }
 };
 
-const getUserByEmail = async (email) => {
-    const [user] = await pool.query(`SELECT * FROM users WHERE email =?`, [email]);
-    return user
-}
 
-export{getUsers,getUser,createUser,updatedUser,deleteUser,checkuser,check,getUserByEmail}
+const getUserByEmail = async (email) => {
+    try {
+        const [user] = await pool.query(`SELECT * FROM users WHERE email = ?`, [email]);
+        return user;
+    } catch (error) {
+        console.error('Error retrieving user by email:', error);
+        throw error; // Propagate the error
+    }
+};
+
+
+export{getUsers,getUser,createUser,updatedUser,deleteUser,check,getUserByEmail}

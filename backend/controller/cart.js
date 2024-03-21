@@ -1,6 +1,7 @@
+import { verifyToken } from '../middlewear/auth.js'
 import {addToCart,getUserCartWithProductInfo,updateCartItemQuantity,removeFromCart,getCartWithProductInfo,} from '../models/cart.js'
 
-import { getUserId}  from '../middlewear/authUser.js';
+
 
 export default {
     geCart:async(req, res)=>{
@@ -23,21 +24,31 @@ export default {
     },
     addToCart: async (req, res) => {
         try {
-            const product_id = req.params.product_id;
-            const user_id = getUserId(req); // Get user ID from the request (implement this function)
+            // Extract token from request headers or cookies
+            const token = req.headers.authorization || req.cookies.jwt;
+            
+            // Logging the token to ensure it's correctly extracted
+            console.log('Token:', token);
     
-            if (!user_id) {
-                throw new Error('User not authenticated');
-            }
+            // Verify the token
+            const { userId } = verifyToken;
     
-            await addToCart(user_id, product_id); // Pass both user_id and product_id
+            // Logging the userId to check if it's correctly extracted
+            console.log('Verified User ID:', userId);
     
-            res.status(201).json({ msg: 'Product added to cart successfully.' });
+            // If token is valid, proceed with adding the product to the cart
+            const { product_id } = req.params;
+            const result = await addToCart(userId, product_id);
+    
+            // Send success response
+            return res.status(201).json(result);
         } catch (error) {
+            // Handle any errors
             console.error('Error adding product to cart:', error);
-            res.status(500).json({ msg: 'Internal server error' });
+            return res.status(500).json({ msg: 'Internal server error' });
         }
     },
+    
     
     deleteCart: async (req, res) => {
         const cartId = req.params.cartId;
