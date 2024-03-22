@@ -23,8 +23,8 @@ export default{
     
     createProduct: async (req, res) => {
         try{
-            const {productname,amount,models,producturl}=req.body;
-            await createProduct(productname, amount, models, producturl);
+            const {productname,amount,models,producturl,description}=req.body;
+            await createProduct(productname, amount, models, producturl,description);
             res.send(await getProducts())
             res.send({ 
                 msg: 'Product added successfully', products 
@@ -38,14 +38,15 @@ export default{
     updateProduct: async (req, res) => {
         try {
             const [product] = await getProducts(+req.params.id);
-            const { productname,amount,models,producturl } = req.body;
+            const { productname,amount,models,producturl,description} = req.body;
     
             const updatedProductName = productname || product.productname;
             const updatedAmount = amount || product.amount;
             const updatedModels = models || product.models;
             const updatedProductUrl = producturl || product.producturl;
+            const updatedDescription = description || product.description;
     
-            await updatedProduct(updatedProductName,updatedAmount, updatedModels, updatedProductUrl, +req.params.id);
+            await updatedProduct(updatedProductName,updatedAmount, updatedModels, updatedProductUrl,updatedDescription, +req.params.id);
             res.send(await getProducts());
         } catch (error) {
             console.error('Error updating product:', error);

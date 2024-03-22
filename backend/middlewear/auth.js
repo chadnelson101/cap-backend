@@ -56,6 +56,7 @@ const loginUser = async (req, res, next) => {
     }
 };
 export const verifyToken = (token) => {
+    console.log(token);
     try {
         // Check if the token is a string
         if (typeof token !== 'string') {

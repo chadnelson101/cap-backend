@@ -23,8 +23,11 @@ export default {
     },
      addToCart: async (req, res) => {
         try {
+            console.log(req.body.token);
+
             // Extract token from request headers or cookies
-            const token = req.headers.authorization || req.cookies.jwt;
+            // const token = req.headers.authorization || req.cookies.jwt;
+            const token = req.body.token;
             
             // Verify the token and extract user ID
             const userId = verifyToken(token);
